@@ -6,23 +6,30 @@ import java.util.List;
 
 /**
  * 日历事件
- * <p>
- * Created by KYLE on 2019/3/4 - 9:53
  */
 public class CalendarEvent {
 
     // ----------------------- 事件属性 -----------------------
 
     /**
-     * 事件在表中的ID
+     * 事件在表中的 ID
      */
     private long id;
     /**
-     * 事件所属日历账户的ID
+     * 事件所属日历账户的 ID
      */
-    private long calID;
+    private long calAccountId;
+    /**
+     * 事件标题
+     */
     private String title;
+    /**
+     * 事件描述
+     */
     private String description;
+    /**
+     * 事件地点
+     */
     private String eventLocation;
     private int displayColor;
     private int status;
@@ -97,12 +104,12 @@ public class CalendarEvent {
         this.id = id;
     }
 
-    public long getCalID() {
-        return calID;
+    public long getCalAccountId() {
+        return calAccountId;
     }
 
-    void setCalID(long calID) {
-        this.calID = calID;
+    void setCalAccountId(long calAccountId) {
+        this.calAccountId = calAccountId;
     }
 
     public String getTitle() {
@@ -278,7 +285,7 @@ public class CalendarEvent {
     public String toString() {
         return "CalendarEvent{" +
                 "\n id=" + id +
-                "\n calID=" + calID +
+                "\n calID=" + calAccountId +
                 "\n title='" + title + '\'' +
                 "\n description='" + description + '\'' +
                 "\n eventLocation='" + eventLocation + '\'' +
@@ -305,7 +312,7 @@ public class CalendarEvent {
 
     @Override
     public int hashCode() {
-        return (int) (id * 37 + calID);
+        return (int) (id * 37 + calAccountId);
     }
 
     /**

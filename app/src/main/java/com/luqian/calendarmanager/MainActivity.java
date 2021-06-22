@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.btn_main_delete:
                 // 删除事件
-                long calID2 = CalendarProviderManager.obtainCalendarAccountID(this);
+                long calID2 = CalendarProviderManager.obtainCalendarAccountId(this);
                 List<CalendarEvent> events2 = CalendarProviderManager.queryAccountEvent(this, calID2);
                 if (null != events2) {
                     if (events2.size() == 0) {
@@ -90,12 +90,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.btn_main_update:
                 // 更新事件
-                long calID = CalendarProviderManager.obtainCalendarAccountID(this);
+                long calID = CalendarProviderManager.obtainCalendarAccountId(this);
                 List<CalendarEvent> events = CalendarProviderManager.queryAccountEvent(this, calID);
                 if (null != events) {
                     if (events.size() == 0) {
                         Toast.makeText(this, "没有事件可以更新", Toast.LENGTH_SHORT).show();
                     } else {
+                        //  第一个事件
                         long eventID = events.get(0).getId();
                         int result3 = CalendarProviderManager.updateCalendarEventTitle(
                                 this, eventID, "改吃晚饭的房间第三方监督司法");
@@ -111,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.btn_main_query:
                 // 查询事件
-                long calID4 = CalendarProviderManager.obtainCalendarAccountID(this);
+                long calID4 = CalendarProviderManager.obtainCalendarAccountId(this);
                 List<CalendarEvent> events4 = CalendarProviderManager.queryAccountEvent(this, calID4);
                 StringBuilder stringBuilder4 = new StringBuilder();
                 if (null != events4) {
@@ -127,7 +128,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.btn_edit:
                 // 启动系统日历进行编辑事件
                 CalendarProviderManager.startCalendarForIntentToInsert(this, System.currentTimeMillis(),
-                        System.currentTimeMillis() + 60000, "哈", "哈哈哈哈", "蒂埃纳",
+                        System.currentTimeMillis() + 60000, "这是提醒标题", "我在新建日历提醒", "中国",
                         false);
                 break;
             case R.id.btn_search:

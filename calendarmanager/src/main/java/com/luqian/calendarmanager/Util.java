@@ -7,9 +7,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-/**
- * Created by KYLE on 2019/3/6 - 13:53
- */
+
 public class Util {
 
     /**
@@ -32,6 +30,7 @@ public class Util {
     public static String getFinalRRuleMode(long time) {
         return getEndDate(time) + "T235959Z";
     }
+
 
     /**
      * 格式化星期
@@ -57,6 +56,7 @@ public class Util {
         }
     }
 
+
     /**
      * 获取重复周
      *
@@ -73,6 +73,7 @@ public class Util {
         return formatWeek(week);
     }
 
+
     /**
      * 获取指定时间段在一个月中的哪一天
      *
@@ -84,6 +85,7 @@ public class Util {
         calendar.setTime(date);
         return calendar.get(Calendar.DAY_OF_MONTH);
     }
+
 
     /**
      * check null

@@ -1,9 +1,7 @@
 package com.luqian.calendarmanager.calendar;
 
 /**
- * 事件提醒提前时间
- * <p>
- * Created by KYLE on 2019/3/3 - 22:26
+ * 事件提前提醒时间
  */
 public class AdvanceTime {
 
