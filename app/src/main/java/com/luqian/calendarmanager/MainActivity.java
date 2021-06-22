@@ -1,61 +1,52 @@
 package com.luqian.calendarmanager;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.luqian.calendarprovider.R;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 import com.luqian.calendarmanager.calendar.CalendarEvent;
 import com.luqian.calendarmanager.calendar.CalendarProviderManager;
+import com.luqian.calendarprovider.R;
 
 import java.util.List;
 
-import butterknife.BindView;
-import butterknife.ButterKnife;
-import butterknife.OnClick;
-
-public class MainActivity extends AppCompatActivity {
-
-    @BindView(R.id.btn_main_add)
-    Button btnMainAdd;
-    @BindView(R.id.btn_main_delete)
-    Button btnMainDelete;
-    @BindView(R.id.btn_main_update)
-    Button btnMainUpdate;
-    @BindView(R.id.btn_main_query)
-    Button btnMainQuery;
-    @BindView(R.id.tv_event)
-    TextView tvEvent;
-    @BindView(R.id.btn_edit)
-    Button btnEdit;
-    @BindView(R.id.btn_search)
-    Button btnSearch;
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ButterKnife.bind(this);
-
 
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.WRITE_CALENDAR) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.WRITE_CALENDAR,
-                            Manifest.permission.READ_CALENDAR}, 1);
+            ActivityCompat.requestPermissions(
+                    this,
+                    new String[]{
+                            Manifest.permission.WRITE_CALENDAR,
+                            Manifest.permission.READ_CALENDAR},
+                    1);
         }
+
+        findViewById(R.id.btn_main_add).setOnClickListener(this);
+        findViewById(R.id.btn_main_delete).setOnClickListener(this);
+        findViewById(R.id.btn_edit).setOnClickListener(this);
+        findViewById(R.id.btn_main_update).setOnClickListener(this);
+        findViewById(R.id.btn_main_query).setOnClickListener(this);
+        findViewById(R.id.btn_search).setOnClickListener(this);
     }
 
-    @OnClick({R.id.btn_main_add, R.id.btn_main_delete, R.id.btn_edit,
-            R.id.btn_main_update, R.id.btn_main_query, R.id.btn_search})
-    public void onViewClicked(View view) {
+
+    @SuppressLint("NonConstantResourceId")
+    @Override
+    public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btn_main_add:
                 CalendarEvent calendarEvent = new CalendarEvent(
@@ -127,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
                     for (CalendarEvent event : events4) {
                         stringBuilder4.append(events4.toString()).append("\n");
                     }
-                    tvEvent.setText(stringBuilder4.toString());
+                    ((TextView) findViewById(R.id.tv_event)).setText(stringBuilder4.toString());
                     Toast.makeText(this, "查询成功", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(this, "查询失败", Toast.LENGTH_SHORT).show();
@@ -140,8 +131,11 @@ public class MainActivity extends AppCompatActivity {
                         false);
                 break;
             case R.id.btn_search:
-                if (CalendarProviderManager.isEventAlreadyExist(this, 1552986006309L,
-                        155298606609L, "马上吃饭")) {
+                if (CalendarProviderManager.isEventAlreadyExist(
+                        this,
+                        1552986006309L,
+                        155298606609L,
+                        "马上吃饭")) {
                     Toast.makeText(this, "存在", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(this, "不存在", Toast.LENGTH_SHORT).show();
@@ -151,5 +145,4 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
     }
-
 }
