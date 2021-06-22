@@ -22,16 +22,14 @@ import java.util.TimeZone;
 
 /**
  * 系统日历工具
- * <p>
- * Created by KYLE on 2019/3/3 - 20:37
  *
  * @see AdvanceTime
  * @see RRuleConstant
  * @see CalendarEvent
  */
-public class CalendarProviderManager {
+public class CalendarManager {
 
-    private static StringBuilder builder = new StringBuilder();
+    private static final StringBuilder builder = new StringBuilder();
 
     /*
      * TIP: 要向系统日历插入事件,前提系统中必须存在至少1个日历账户
@@ -197,44 +195,38 @@ public class CalendarProviderManager {
      * @return 0: success  -1: failed  -2: permission deny
      */
     public static int addCalendarEvent(Context context, CalendarEvent calendarEvent) {
-         /*
-            TIP: 插入一个新事件的规则：
-             1.  必须包含 CALENDAR_ID 和 DTSTART 字段
-             2.  必须包含 EVENT_TIMEZONE 字段,使用 TimeZone.getDefault().getID() 方法获取默认时区
-             3.  对于非重复发生的事件,必须包含 DTEND 字段
-             4.  对重复发生的事件,必须包含一个附加了 RRULE 或 RDATE 字段的 DURATION 字段
+        /*
+         * TIP: 插入一个新事件的规则：
+         * 1.  必须包含 CALENDAR_ID 和 DTSTART 字段
+         * 2.  必须包含 EVENT_TIMEZONE 字段,使用 TimeZone.getDefault().getID() 方法获取默认时区
+         * 3.  对于非重复发生的事件,必须包含 DTEND 字段
+         * 4.  对重复发生的事件,必须包含一个附加了 RRULE 或 RDATE 字段的 DURATION 字段
          */
-
         checkContextNull(context);
 
         // 获取日历账户 ID，也就是要将事件插入到的账户
-        long calID = obtainCalendarAccountId(context);
+        long accountId = obtainCalendarAccountId(context);
 
         // 系统日历事件表
-        Uri uri1 = CalendarContract.Events.CONTENT_URI;
+        Uri uriEvents = CalendarContract.Events.CONTENT_URI;
         // 创建的日历事件
         Uri eventUri;
-
-        // 系统日历事件提醒表
-        Uri uri2 = CalendarContract.Reminders.CONTENT_URI;
-        // 创建的日历事件提醒
-        Uri reminderUri;
 
         // 开始组装事件数据
         ContentValues event = new ContentValues();
         // 事件要插入到的日历账户
-        event.put(CalendarContract.Events.CALENDAR_ID, calID);
+        event.put(CalendarContract.Events.CALENDAR_ID, accountId);
         setupEvent(calendarEvent, event);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             // 判断权限
             if (PackageManager.PERMISSION_GRANTED == context.checkSelfPermission(Manifest.permission.WRITE_CALENDAR)) {
-                eventUri = context.getContentResolver().insert(uri1, event);
+                eventUri = context.getContentResolver().insert(uriEvents, event);
             } else {
                 return -2;
             }
         } else {
-            eventUri = context.getContentResolver().insert(uri1, event);
+            eventUri = context.getContentResolver().insert(uriEvents, event);
         }
 
         if (null == eventUri) {
@@ -242,18 +234,22 @@ public class CalendarProviderManager {
         }
 
         if (-2 != calendarEvent.getAdvanceTime()) {
-            // 获取事件ID
-            long eventID = ContentUris.parseId(eventUri);
+            // 系统日历事件提醒表
+            Uri uriReminders = CalendarContract.Reminders.CONTENT_URI;
+            // 创建的日历事件提醒
+            Uri reminderUri;
+            // 获取事件 ID
+            long eventId = ContentUris.parseId(eventUri);
 
             // 开始组装事件提醒数据
             ContentValues reminders = new ContentValues();
-            // 此提醒所对应的事件ID
-            reminders.put(CalendarContract.Reminders.EVENT_ID, eventID);
+            // 此提醒所对应的事件 ID
+            reminders.put(CalendarContract.Reminders.EVENT_ID, eventId);
             // 设置提醒提前的时间(0：准时  -1：使用系统默认)
             reminders.put(CalendarContract.Reminders.MINUTES, calendarEvent.getAdvanceTime());
             // 设置事件提醒方式为通知警报
             reminders.put(CalendarContract.Reminders.METHOD, CalendarContract.Reminders.METHOD_ALERT);
-            reminderUri = context.getContentResolver().insert(uri2, reminders);
+            reminderUri = context.getContentResolver().insert(uriReminders, reminders);
 
             if (null == reminderUri) {
                 return -1;
@@ -272,7 +268,7 @@ public class CalendarProviderManager {
      * @param newCalendarEvent 更新的日历事件
      * @return -2: permission deny  else success
      */
-    public static int updateCalendarEventById(Context context, long eventID, CalendarEvent newCalendarEvent) {
+    public static int updateCalendarEvent(Context context, long eventID, CalendarEvent newCalendarEvent) {
         checkContextNull(context);
 
         int updatedCount1;
@@ -334,7 +330,7 @@ public class CalendarProviderManager {
 
 
     /**
-     * 更新指定ID事件的结束时间
+     * 更新指定 ID 事件的结束时间
      *
      * @return If successfully returns 1
      */
@@ -361,7 +357,7 @@ public class CalendarProviderManager {
      * @return If successfully returns 1
      */
     public static int updateCalendarEventTime(Context context,
-                                              long eventID,
+                                              long eventId,
                                               long newBeginTime,
                                               long newEndTime) {
         checkContextNull(context);
@@ -376,7 +372,7 @@ public class CalendarProviderManager {
 
         // 匹配条件
         String selection = "(" + CalendarContract.Events._ID + " = ?)";
-        String[] selectionArgs = new String[]{String.valueOf(eventID)};
+        String[] selectionArgs = new String[]{String.valueOf(eventId)};
 
         return context.getContentResolver().update(uri, event, selection, selectionArgs);
     }
@@ -789,8 +785,13 @@ public class CalendarProviderManager {
         event.put(CalendarContract.Events.AVAILABILITY, CalendarContract.Events.AVAILABILITY_BUSY);
         if (null != calendarEvent.getRRule()) {
             // 设置事件重复规则
-            event.put(CalendarContract.Events.RRULE, getFullRRuleForRRule(
-                    calendarEvent.getRRule(), calendarEvent.getStart(), calendarEvent.getEnd()));
+            event.put(
+                    CalendarContract.Events.RRULE,
+                    getFullRRuleForRRule(
+                            calendarEvent.getRRule(),
+                            calendarEvent.getStart(),
+                            calendarEvent.getEnd())
+            );
         }
     }
 
@@ -806,6 +807,8 @@ public class CalendarProviderManager {
         builder.delete(0, builder.length());
 
         switch (rRule) {
+
+            //  每周重复
             case RRuleConstant.REPEAT_WEEKLY_BY_MO:
             case RRuleConstant.REPEAT_WEEKLY_BY_TU:
             case RRuleConstant.REPEAT_WEEKLY_BY_WE:
@@ -813,13 +816,29 @@ public class CalendarProviderManager {
             case RRuleConstant.REPEAT_WEEKLY_BY_FR:
             case RRuleConstant.REPEAT_WEEKLY_BY_SA:
             case RRuleConstant.REPEAT_WEEKLY_BY_SU:
-                return builder.append(rRule).append(Util.getFinalRRuleMode(endTime)).toString();
+
+                return builder.append(rRule)
+                        .append(Util.getFinalRRuleMode(endTime))
+                        .toString();
+
+            // 每周某天重复
             case RRuleConstant.REPEAT_CYCLE_WEEKLY:
-                return builder.append(rRule).append(Util.getWeekForDate(beginTime)).append("; UNTIL = ")
-                        .append(Util.getFinalRRuleMode(endTime)).toString();
+
+                return builder.append(rRule)
+                        .append(Util.getWeekForDate(beginTime))
+                        .append("; UNTIL = ")
+                        .append(Util.getFinalRRuleMode(endTime))
+                        .toString();
+
+            //  每月某天重复
             case RRuleConstant.REPEAT_CYCLE_MONTHLY:
-                return builder.append(rRule).append(Util.getDayOfMonth(beginTime))
-                        .append("; UNTIL = ").append(Util.getFinalRRuleMode(endTime)).toString();
+
+                return builder.append(rRule)
+                        .append(Util.getDayOfMonth(beginTime))
+                        .append("; UNTIL = ")
+                        .append(Util.getFinalRRuleMode(endTime))
+                        .toString();
+
             default:
                 return rRule;
         }
@@ -869,7 +888,7 @@ public class CalendarProviderManager {
                                                       boolean isAllDay) {
         checkCalendarAccount(context);
 
-        // FIXME: 2019/3/6 VIVO 手机无法打开界面，找不到对应的 Activity  com.bbk.calendar
+        // FIXME: VIVO 手机无法打开界面，找不到对应的 Activity  com.bbk.calendar
         Intent intent = new Intent(Intent.ACTION_INSERT)
                 .setData(CalendarContract.Events.CONTENT_URI)
                 .putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, beginTime)

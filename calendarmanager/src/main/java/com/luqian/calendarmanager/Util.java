@@ -11,6 +11,16 @@ import java.util.Locale;
 public class Util {
 
     /**
+     * 获取最终日历事件重复规则
+     *
+     * @param time 毫秒
+     */
+    public static String getFinalRRuleMode(long time) {
+        return getEndDate(time) + "T235959Z";
+    }
+
+
+    /**
      * 获取日历事件结束日期
      *
      * @param time time in ms
@@ -19,16 +29,6 @@ public class Util {
         Date date = new Date(time);
         SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd", Locale.getDefault());
         return format.format(date);
-    }
-
-    /**
-     * 获取最终日历事件重复规则
-     *
-     * @param time time in ms
-     *             "T235959" {@linkplain com.luqian.calendarmanager.calendar.RRuleConstant #51}
-     */
-    public static String getFinalRRuleMode(long time) {
-        return getEndDate(time) + "T235959Z";
     }
 
 

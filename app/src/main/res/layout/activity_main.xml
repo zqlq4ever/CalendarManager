@@ -12,37 +12,37 @@
         tools:context = "com.luqian.calendarmanager.MainActivity">
         
         <Button
-            android:id = "@+id/btn_main_add"
+            android:id = "@+id/bt_add"
             android:layout_width = "match_parent"
             android:layout_height = "64dp"
             android:text = "增加日历事件" />
         
         <Button
-            android:id = "@+id/btn_main_delete"
+            android:id = "@+id/bt_delete"
             android:layout_width = "match_parent"
             android:layout_height = "64dp"
             android:text = "删除日历事件" />
         
         <Button
-            android:id = "@+id/btn_main_update"
+            android:id = "@+id/bt_update"
             android:layout_width = "match_parent"
             android:layout_height = "64dp"
             android:text = "更新日历事件" />
         
         <Button
-            android:id = "@+id/btn_main_query"
+            android:id = "@+id/bt_query"
             android:layout_width = "match_parent"
             android:layout_height = "64dp"
             android:text = "查询日历事件" />
         
         <Button
-            android:id = "@+id/btn_edit"
+            android:id = "@+id/bt_open_system_calendar"
             android:layout_width = "match_parent"
             android:layout_height = "64dp"
             android:text = "打开系统日历编辑" />
         
         <Button
-            android:id = "@+id/btn_search"
+            android:id = "@+id/bt_search"
             android:layout_width = "match_parent"
             android:layout_height = "64dp"
             android:text = "检查是否存在" />

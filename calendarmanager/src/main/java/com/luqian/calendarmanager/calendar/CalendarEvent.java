@@ -62,8 +62,9 @@ public class CalendarEvent {
     // ----------------------- 事件提醒属性 -----------------------
     private List<EventReminders> reminders;
 
-    CalendarEvent() {
+    public CalendarEvent() {
     }
+
 
     /**
      * 用于方便添加完整日历事件提供一个构造方法
