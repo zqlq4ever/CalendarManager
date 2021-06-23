@@ -49,7 +49,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         IntentFilter filter = new IntentFilter();
         filter.addAction(CalendarContract.ACTION_EVENT_REMINDER);
-        filter.addDataScheme("content"); // 隐示 intent 所以要加这一行
+        // 隐示 intent 所以要加这一行
+        filter.addDataScheme("content");
         mReceiver = new ReminderReceiver();
         registerReceiver(mReceiver, filter);
     }

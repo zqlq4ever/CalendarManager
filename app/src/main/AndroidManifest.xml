@@ -22,12 +22,6 @@
                 <category android:name = "android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        
-        <receiver android:name = "com.luqian.calendarmanager.ReminderReceiver">
-            <intent-filter>
-                <action android:name = "android.intent.action.EVENT_REMINDER" />
-            </intent-filter>
-        </receiver>
     
     </application>
 
