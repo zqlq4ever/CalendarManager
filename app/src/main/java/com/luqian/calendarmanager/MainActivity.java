@@ -2,8 +2,10 @@ package com.luqian.calendarmanager;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.provider.CalendarContract;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -20,6 +22,8 @@ import com.luqian.calendarprovider.R;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+
+    private ReminderReceiver mReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,8 +46,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.bt_update).setOnClickListener(this);
         findViewById(R.id.bt_query).setOnClickListener(this);
         findViewById(R.id.bt_search).setOnClickListener(this);
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(CalendarContract.ACTION_EVENT_REMINDER);
+        filter.addDataScheme("content"); // 隐示 intent 所以要加这一行
+        mReceiver = new ReminderReceiver();
+        registerReceiver(mReceiver, filter);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(mReceiver);
+    }
 
     @SuppressLint("NonConstantResourceId")
     @Override
@@ -67,12 +82,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 );
 
                 int result = CalendarManager.addCalendarEvent(this, calendarEvent);
-                if (result == 0) {
-                    toast("插入成功");
-                } else if (result == -1) {
-                    toast("插入失败");
-                } else if (result == -2) {
-                    toast("没有权限");
+                switch (result) {
+                    case 0:
+                        toast("插入成功");
+                        break;
+                    case -1:
+                        toast("插入失败");
+                        break;
+                    case -2:
+                        toast("没有权限");
+                        break;
                 }
                 break;
 

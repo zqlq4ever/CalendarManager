@@ -1,4 +1,4 @@
-# CalendarProviderManager
+# CalendarManager
 
 > Fork 自`kylechandev/CalendarProviderManager`的项目
 

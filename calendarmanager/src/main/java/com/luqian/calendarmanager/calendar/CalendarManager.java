@@ -628,14 +628,22 @@ public class CalendarManager {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (PackageManager.PERMISSION_GRANTED == context.checkSelfPermission(Manifest.permission.WRITE_CALENDAR)) {
-                cursor = context.getContentResolver().query(uri, EVENT_PROJECTION, selection,
-                        selectionArgs, null);
+                cursor = context.getContentResolver().query(
+                        uri,
+                        EVENT_PROJECTION,
+                        selection,
+                        selectionArgs,
+                        null);
             } else {
                 return null;
             }
         } else {
-            cursor = context.getContentResolver().query(uri, EVENT_PROJECTION, selection,
-                    selectionArgs, null);
+            cursor = context.getContentResolver().query(
+                    uri,
+                    EVENT_PROJECTION,
+                    selection,
+                    selectionArgs,
+                    null);
         }
 
         if (null == cursor) {
