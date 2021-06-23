@@ -271,7 +271,7 @@ public class CalendarManager {
     public static int updateCalendarEvent(Context context, long eventID, CalendarEvent newCalendarEvent) {
         checkContextNull(context);
 
-        int updatedCount1;
+        int updatedCount;
 
         Uri uri1 = CalendarContract.Events.CONTENT_URI;
         Uri uri2 = CalendarContract.Reminders.CONTENT_URI;
@@ -280,17 +280,17 @@ public class CalendarManager {
         setupEvent(newCalendarEvent, event);
 
         // 更新匹配条件
-        String selection1 = "(" + CalendarContract.Events._ID + " = ?)";
-        String[] selectionArgs1 = new String[]{String.valueOf(eventID)};
+        String selection = "(" + CalendarContract.Events._ID + " = ?)";
+        String[] selectionArgs = new String[]{String.valueOf(eventID)};
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (PackageManager.PERMISSION_GRANTED == context.checkSelfPermission(Manifest.permission.WRITE_CALENDAR)) {
-                updatedCount1 = context.getContentResolver().update(uri1, event, selection1, selectionArgs1);
+                updatedCount = context.getContentResolver().update(uri1, event, selection, selectionArgs);
             } else {
                 return -2;
             }
         } else {
-            updatedCount1 = context.getContentResolver().update(uri1, event, selection1, selectionArgs1);
+            updatedCount = context.getContentResolver().update(uri1, event, selection, selectionArgs);
         }
 
         ContentValues reminders = new ContentValues();
@@ -303,7 +303,7 @@ public class CalendarManager {
 
         int updatedCount2 = context.getContentResolver().update(uri2, reminders, selection2, selectionArgs2);
 
-        return (updatedCount1 + updatedCount2) / 2;
+        return (updatedCount + updatedCount2) / 2;
     }
 
 
@@ -552,7 +552,7 @@ public class CalendarManager {
     public static int deleteCalendarEvent(Context context, long eventId) {
         checkContextNull(context);
 
-        int deletedCount1;
+        int deletedCount;
         Uri uri1 = CalendarContract.Events.CONTENT_URI;
         Uri uri2 = CalendarContract.Reminders.CONTENT_URI;
 
@@ -562,12 +562,12 @@ public class CalendarManager {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (PackageManager.PERMISSION_GRANTED == context.checkSelfPermission(Manifest.permission.WRITE_CALENDAR)) {
-                deletedCount1 = context.getContentResolver().delete(uri1, selection, selectionArgs);
+                deletedCount = context.getContentResolver().delete(uri1, selection, selectionArgs);
             } else {
                 return -2;
             }
         } else {
-            deletedCount1 = context.getContentResolver().delete(uri1, selection, selectionArgs);
+            deletedCount = context.getContentResolver().delete(uri1, selection, selectionArgs);
         }
 
         // 删除匹配条件
@@ -576,7 +576,7 @@ public class CalendarManager {
 
         int deletedCount2 = context.getContentResolver().delete(uri2, selection2, selectionArgs2);
 
-        return (deletedCount1 + deletedCount2) / 2;
+        return (deletedCount + deletedCount2) / 2;
     }
 
 
@@ -590,6 +590,7 @@ public class CalendarManager {
      * @return If failed return null else return List<CalendarEvent>
      */
     public static List<CalendarEvent> queryAccountEvent(Context context, long calId) {
+
         checkContextNull(context);
 
         final String[] EVENT_PROJECTION = new String[]{
@@ -718,20 +719,20 @@ public class CalendarManager {
                         selection2, selectionArgs2, null)) {
                     if (null != reminderCursor) {
                         if (reminderCursor.moveToFirst()) {
-                            List<CalendarEvent.EventReminders> reminders = new ArrayList<>();
+                            List<CalendarEvent.EventReminders> reminderList = new ArrayList<>();
                             do {
-                                CalendarEvent.EventReminders reminders1 = new CalendarEvent.EventReminders();
-                                reminders.add(reminders1);
-                                reminders1.setReminderId(reminderCursor.getLong(
+                                CalendarEvent.EventReminders reminder = new CalendarEvent.EventReminders();
+                                reminderList.add(reminder);
+                                reminder.setReminderId(reminderCursor.getLong(
                                         reminderCursor.getColumnIndex(CalendarContract.Reminders._ID)));
-                                reminders1.setReminderEventID(reminderCursor.getLong(
+                                reminder.setReminderEventID(reminderCursor.getLong(
                                         reminderCursor.getColumnIndex(CalendarContract.Reminders.EVENT_ID)));
-                                reminders1.setReminderMinute(reminderCursor.getInt(
+                                reminder.setReminderMinute(reminderCursor.getInt(
                                         reminderCursor.getColumnIndex(CalendarContract.Reminders.MINUTES)));
-                                reminders1.setReminderMethod(reminderCursor.getInt(
+                                reminder.setReminderMethod(reminderCursor.getInt(
                                         reminderCursor.getColumnIndex(CalendarContract.Reminders.METHOD)));
                             } while (reminderCursor.moveToNext());
-                            calendarEvent.setReminders(reminders);
+                            calendarEvent.setReminders(reminderList);
                         }
                     }
                 }
@@ -750,18 +751,17 @@ public class CalendarManager {
      * @param title 事件标题
      */
     public static boolean isEventAlreadyExist(Context context, long begin, long end, String title) {
+
         String[] projection = new String[]{
                 CalendarContract.Instances.BEGIN,
                 CalendarContract.Instances.END,
                 CalendarContract.Instances.TITLE
         };
 
-        Cursor cursor = CalendarContract.Instances.query(
-                context.getContentResolver(), projection, begin, end, title);
+        Cursor cursor = CalendarContract.Instances.query(context.getContentResolver(), projection, begin, end, title);
 
         return null != cursor && cursor.moveToFirst()
-                && cursor.getString(
-                cursor.getColumnIndex(CalendarContract.Instances.TITLE)).equals(title);
+                && cursor.getString(cursor.getColumnIndex(CalendarContract.Instances.TITLE)).equals(title);
     }
 
 
