@@ -29,7 +29,7 @@ import java.util.TimeZone;
  */
 public class CalendarManager {
 
-    private static final StringBuilder builder = new StringBuilder();
+    private static final StringBuilder RRULE = new StringBuilder();
 
     /*
      * TIP: 要向系统日历插入事件,前提系统中必须存在至少1个日历账户
@@ -743,6 +743,7 @@ public class CalendarManager {
         return result;
     }
 
+
     /**
      * 判断日历账户中是否已经存在此事件
      *
@@ -764,8 +765,6 @@ public class CalendarManager {
                 && cursor.getString(cursor.getColumnIndex(CalendarContract.Instances.TITLE)).equals(title);
     }
 
-
-    // ------------------------------- 日历事件相关 -----------------------------------
 
     /**
      * 组装日历事件
@@ -812,7 +811,7 @@ public class CalendarManager {
      * @param endTime   结束时间
      */
     private static String getFullRRuleForRRule(String rRule, long beginTime, long endTime) {
-        builder.delete(0, builder.length());
+        RRULE.delete(0, RRULE.length());
 
         switch (rRule) {
 
@@ -825,14 +824,14 @@ public class CalendarManager {
             case RRuleConstant.REPEAT_WEEKLY_BY_SA:
             case RRuleConstant.REPEAT_WEEKLY_BY_SU:
 
-                return builder.append(rRule)
+                return RRULE.append(rRule)
                         .append(Util.getFinalRRuleMode(endTime))
                         .toString();
 
             // 每周某天重复
             case RRuleConstant.REPEAT_CYCLE_WEEKLY:
 
-                return builder.append(rRule)
+                return RRULE.append(rRule)
                         .append(Util.getWeekForDate(beginTime))
                         .append("; UNTIL = ")
                         .append(Util.getFinalRRuleMode(endTime))
@@ -841,7 +840,7 @@ public class CalendarManager {
             //  每月某天重复
             case RRuleConstant.REPEAT_CYCLE_MONTHLY:
 
-                return builder.append(rRule)
+                return RRULE.append(rRule)
                         .append(Util.getDayOfMonth(beginTime))
                         .append("; UNTIL = ")
                         .append(Util.getFinalRRuleMode(endTime))
@@ -944,33 +943,6 @@ public class CalendarManager {
         if (null != intent.resolveActivity(context.getPackageManager())) {
             context.startActivity(intent);
         }
-    }
-
-
-    // ----------------------------- 日历账户名相关设置 -----------------------------------
-
-    public static String getCalendarName() {
-        return CALENDAR_NAME;
-    }
-
-    public static void setCalendarName(String calendarName) {
-        CALENDAR_NAME = calendarName;
-    }
-
-    public static String getCalendarAccountName() {
-        return CALENDAR_ACCOUNT_NAME;
-    }
-
-    public static void setCalendarAccountName(String calendarAccountName) {
-        CALENDAR_ACCOUNT_NAME = calendarAccountName;
-    }
-
-    public static String getCalendarDisplayName() {
-        return CALENDAR_DISPLAY_NAME;
-    }
-
-    public static void setCalendarDisplayName(String calendarDisplayName) {
-        CALENDAR_DISPLAY_NAME = calendarDisplayName;
     }
 
 }

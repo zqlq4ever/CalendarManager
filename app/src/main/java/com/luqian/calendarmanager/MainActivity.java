@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         "月球表面的那个大坑",
                         System.currentTimeMillis() + 6 * 1000,
                         System.currentTimeMillis() + 10 * 1000,
-                        AdvanceTime.FIVE_MINUTES,
+                        AdvanceTime.NONE,
                         null
                 );
 

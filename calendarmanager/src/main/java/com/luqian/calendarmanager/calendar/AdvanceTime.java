@@ -6,6 +6,11 @@ package com.luqian.calendarmanager.calendar;
 public class AdvanceTime {
 
     /**
+     * 准时
+     */
+    public static final int NONE = 0;
+
+    /**
      * 5分钟前
      */
     public static final int FIVE_MINUTES = 5;
