@@ -81,14 +81,12 @@ public class CalendarManager {
             // 存在日历账户，获取第一个账户的 ID
             if (cursor.moveToFirst()) {
                 while (cursor.moveToNext()) {
-                    int id = cursor.getInt(cursor.getColumnIndex(CalendarContract.Calendars._ID));
+                    int calendarId = cursor.getInt(cursor.getColumnIndex(CalendarContract.Calendars._ID));
                     String display_name = cursor.getString(cursor.getColumnIndex(CalendarContract.Calendars.CALENDAR_DISPLAY_NAME));
-                    Log.d("-------", id + "------" + display_name);
+                    Log.d("-------", calendarId + "------" + display_name);
 
                     if (displayName.equals(display_name)) {
-                        return id;
-                    } else {
-                        return -1;
+                        return calendarId;
                     }
                 }
             }
