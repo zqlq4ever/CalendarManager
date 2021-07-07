@@ -27,44 +27,44 @@ package com.luqian.calendarmanager.calendar;
  * FREQ 重复频率  Type: TEXT
  * DAILY 天  YEARLY 年  WEEKLY 周  MONTHLY 月
  * -------------------------------------------------------------------------
+ * <p>
  * INTERVAL 间隔时间  Type: INT
  * 依据 FREQ 重复频率分别为  间隔 INT 天  间隔 INT 年  间隔 INT 周  间隔 INT 月
  * 例：每隔一天 - 永远：
  * RRULE：FREQ = DAILY; INTERVAL = 2
- * ==>（1997 年 9:00 AM EDT）9 月 2,4,6,8 .. .24,26,28,30;
- * 10 月 2,4,6 ... 20,22,24
- * （1997 年东部时间上午 9 点）10 月 26,28,30;
- * 11 月 1,3,5,7 ...... 25,27,29;
- * 12 月 1,3 日，...
- * ...
+ * <p>
  * -------------------------------------------------------------------------
- * COUNT 发生次数  <P>Type: INT</P>
- * 指在FREQ和INTERVAL的基础上，一共发生的次数
- * 例：每日10次：
+ * <p>
+ * COUNT 发生次数
+ * <P>Type: INT
+ * 指在 FREQ 和 INTERVAL 的基础上，一共发生的次数
+ * 例：每日 10 次：
  * RRULE：FREQ=DAILY;COUNT=10
- * ==>（1997年9:00 AM EDT）9月2日至11日
+ * <p>
  * -------------------------------------------------------------------------
  * UNTIL 从指定开始日开始计算，直到 UNTIL 到的那天结束 Type: TEXT
- * 例：每周一直到1997年12月24日：
+ * 例：每周一直到 1997年12月24日：
  * RRULE：FREQ = WEEKLY;UNTIL = 19971224T000000Z   TIP: 最后的 T......Z 之间的内容指时分秒
- * ==>（1997年9:00 AM EDT）9月2,9,16,23， 30;
- * 10月7日，14,21
- * （1997年美国东部时间上午9点）10月28日;
- * 11月4,11,18,25;
- * 12月2,9,16,23
+ * <p>
  * -------------------------------------------------------------------------
- * WKST 从星期INT?开始  <P>Type: TEXT 以周的开头两个字母大写组成  例：MO</P>
- * BYDAY 一周的哪些天才提醒  <P>Type: TEXT 以周的开头两个字母大写组成  例：MO</P>
+ * WKST 从星期 INT 开始
+ * <P>Type: TEXT 以周的开头两个字母大写组成  例：MO
+ * <p>
+ * BYDAY 一周的哪些天才提醒
+ * <P>Type: TEXT 以周的开头两个字母大写组成  例：MO
  * 例：每周周二和周四为期五周：
  * RRULE：FREQ=WEEKLY ;COUNT=10;WKST=SU;BYDAY=TU，TH
- * ==>（1997年9:00 AM EDT）9月2,4,9,11,16,18,23,25,30;10月2日
+ *
+ * <p>注：BYDAY 若在星期几(如 MO)前添加数字(如 1MO,-1MO)表示为每月(年)第几个星期几
+ * +1 表示每月(年)第一个星期几，-1表示每月(年)倒数第一个星期几，以此类推.
+ * (只有在 FREQ 标记为 WEEKLY 或 YEARLY 时才有效)
  * <p>
- * 注：BYDAY 若在星期几(如MO)前添加数字(如1MO,-1MO)表示为每月(年)第几个星期几
- * +1表示每月(年)第一个星期几，-1表示每月(年)倒数第一个星期几，以此类推.(只有在FREQ标记为WEEKLY或YEARLY时才有效)
  * -------------------------------------------------------------------------
- * BYMONTHDAY  一月中的某天  <P>Type: INT</P>
+ * BYMONTHDAY  一月中的某天
+ * <P>Type: INT
  * 例：BYMONTHDAY=2,15 表示每月2日和15日
  * 可接受-值，含义同 BYDAY 的-值
+ * <p>
  * -------------------------------------------------------------------------
  * BYYEARDAY  一年中的某天  <P>Type: INT</P>
  * 同 BYMONTHDAY
@@ -80,9 +80,10 @@ package com.luqian.calendarmanager.calendar;
  * SU      周日
  * -------------------------
  *
- * <p> 了解更多关于RRule的规则请参考
- *
+ * <p> 了解更多关于 RRule 的规则请参考
  * <p> https://tools.ietf.org/html/rfc5545
+ * <p> https://www.cnblogs.com/jcli/p/calendar_recur_rule.html
+ * <p> https://blog.csdn.net/csdn15002274757/article/details/94557330
  */
 public class RRuleConstant {
 

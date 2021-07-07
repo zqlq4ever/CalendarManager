@@ -17,7 +17,6 @@ import androidx.core.content.ContextCompat;
 import com.luqian.calendarmanager.calendar.AdvanceTime;
 import com.luqian.calendarmanager.calendar.CalendarEvent;
 import com.luqian.calendarmanager.calendar.CalendarManager;
-import com.luqian.calendarprovider.R;
 
 import java.util.List;
 
@@ -76,8 +75,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         "有一个快递要去拿",
                         "京东送来了一个快递，放在丰巢，不要忘记拿了",
                         "月球表面的那个大坑",
-                        System.currentTimeMillis() + 6 * 60 * 1000,
-                        System.currentTimeMillis() + 10 * 60 * 1000,
+                        System.currentTimeMillis() + 6 * 1000,
+                        System.currentTimeMillis() + 10 * 1000,
                         AdvanceTime.FIVE_MINUTES,
                         null
                 );
