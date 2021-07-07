@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view) {
 
         long accountId = CalendarManager.obtainCalendarAccountId(this);
-        List<CalendarEvent> calendarEventList = CalendarManager.queryAccountEvent(this, accountId);
+        List<CalendarEvent> calendarEventList = CalendarManager.searchAccountEvent(this, accountId);
 
         switch (view.getId()) {
             // 添加事件
@@ -93,6 +93,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         toast("没有权限");
                         break;
                 }
+
                 break;
 
             // 删除事件

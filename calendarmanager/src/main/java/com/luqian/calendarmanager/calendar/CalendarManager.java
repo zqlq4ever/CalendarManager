@@ -13,6 +13,9 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.CalendarContract;
+import android.util.Log;
+
+import androidx.annotation.NonNull;
 
 import com.luqian.calendarmanager.Util;
 
@@ -51,7 +54,7 @@ public class CalendarManager {
      */
     @SuppressWarnings("WeakerAccess")
     public static long obtainCalendarAccountId(Context context) {
-        long calId = checkCalendarAccount(context);
+        long calId = checkCalendarAccount(context, CALENDAR_DISPLAY_NAME);
         if (calId >= 0) {
             return calId;
         } else {
@@ -61,25 +64,36 @@ public class CalendarManager {
 
 
     /**
-     * 检查是否存在日历账户
+     * 检查是否存在指定名字日历账户
      *
-     * @return 存在：日历账户ID  不存在：-1
+     * @return 存在：日历账户 ID  不存在：-1
      */
-    private static long checkCalendarAccount(Context context) {
+    private static long checkCalendarAccount(Context context, @NonNull String displayName) {
         try (Cursor cursor = context.getContentResolver().query(CalendarContract.Calendars.CONTENT_URI,
                 null, null, null, null)) {
             // 不存在日历账户
             if (null == cursor) {
                 return -1;
             }
-            int count = cursor.getCount();
-            // 存在日历账户，获取第一个账户的ID
-            if (count > 0) {
-                cursor.moveToFirst();
-                return cursor.getInt(cursor.getColumnIndex(CalendarContract.Calendars._ID));
-            } else {
+            if (cursor.getCount() <= 0) {
                 return -1;
             }
+            // 存在日历账户，获取第一个账户的 ID
+            if (cursor.moveToFirst()) {
+                while (cursor.moveToNext()) {
+                    int id = cursor.getInt(cursor.getColumnIndex(CalendarContract.Calendars._ID));
+                    String display_name = cursor.getString(cursor.getColumnIndex(CalendarContract.Calendars.CALENDAR_DISPLAY_NAME));
+                    Log.d("-------", id + "------" + display_name);
+
+                    if (displayName.equals(display_name)) {
+                        return id;
+                    } else {
+                        return -1;
+                    }
+                }
+            }
+
+            return -1;
         }
     }
 
@@ -92,10 +106,8 @@ public class CalendarManager {
     private static long createCalendarAccount(Context context) {
         // 系统日历表
         Uri uri = CalendarContract.Calendars.CONTENT_URI;
-
         // 要创建的账户
         Uri accountUri;
-
         // 开始组装账户数据
         ContentValues account = new ContentValues();
         // 账户类型：本地
@@ -153,6 +165,7 @@ public class CalendarManager {
             accountUri = context.getContentResolver().insert(uri, account);
         }
 
+        Log.d("----", "新建日历账户");
         return accountUri == null ? -1 : ContentUris.parseId(accountUri);
     }
 
@@ -163,23 +176,23 @@ public class CalendarManager {
      * @return -2: permission deny  0: No designated account  1: delete success
      */
     public static int deleteCalendarAccountByName(Context context) {
-        checkContextNull(context);
 
-        int deleteCount;
-        Uri uri = CalendarContract.Calendars.CONTENT_URI;
+        checkContextNull(context);
 
         String selection = "((" + CalendarContract.Calendars.ACCOUNT_NAME + " = ?) AND ("
                 + CalendarContract.Calendars.ACCOUNT_TYPE + " = ?))";
         String[] selectionArgs = new String[]{CALENDAR_ACCOUNT_NAME, CalendarContract.ACCOUNT_TYPE_LOCAL};
 
+        int deleteCount;
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (PackageManager.PERMISSION_GRANTED == context.checkSelfPermission(Manifest.permission.WRITE_CALENDAR)) {
-                deleteCount = context.getContentResolver().delete(uri, selection, selectionArgs);
+                deleteCount = context.getContentResolver().delete(CalendarContract.Calendars.CONTENT_URI, selection, selectionArgs);
             } else {
                 return -2;
             }
         } else {
-            deleteCount = context.getContentResolver().delete(uri, selection, selectionArgs);
+            deleteCount = context.getContentResolver().delete(CalendarContract.Calendars.CONTENT_URI, selection, selectionArgs);
         }
 
         return deleteCount;
@@ -204,19 +217,12 @@ public class CalendarManager {
          */
         checkContextNull(context);
 
-        // 获取日历账户 ID，也就是要将事件插入到的账户
-        long accountId = obtainCalendarAccountId(context);
+        ContentValues event = setupEvent(calendarEvent, context);
 
         // 系统日历事件表
         Uri uriEvents = CalendarContract.Events.CONTENT_URI;
         // 创建的日历事件
         Uri eventUri;
-
-        // 开始组装事件数据
-        ContentValues event = new ContentValues();
-        // 事件要插入到的日历账户
-        event.put(CalendarContract.Events.CALENDAR_ID, accountId);
-        setupEvent(calendarEvent, event);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             // 判断权限
@@ -271,17 +277,17 @@ public class CalendarManager {
     public static int updateCalendarEvent(Context context, long eventID, CalendarEvent newCalendarEvent) {
         checkContextNull(context);
 
+        ContentValues event = setupEvent(newCalendarEvent, context);
+
+        // 更新匹配条件
+        String selection = "(" + CalendarContract.Events._ID + " = ?)";
+        String[] selectionArgs = new String[]{String.valueOf(eventID)};
+
         int updatedCount;
 
         Uri uri1 = CalendarContract.Events.CONTENT_URI;
         Uri uri2 = CalendarContract.Reminders.CONTENT_URI;
 
-        ContentValues event = new ContentValues();
-        setupEvent(newCalendarEvent, event);
-
-        // 更新匹配条件
-        String selection = "(" + CalendarContract.Events._ID + " = ?)";
-        String[] selectionArgs = new String[]{String.valueOf(eventID)};
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (PackageManager.PERMISSION_GRANTED == context.checkSelfPermission(Manifest.permission.WRITE_CALENDAR)) {
@@ -589,7 +595,7 @@ public class CalendarManager {
      *
      * @return If failed return null else return List<CalendarEvent>
      */
-    public static List<CalendarEvent> queryAccountEvent(Context context, long calId) {
+    public static List<CalendarEvent> searchAccountEvent(Context context, long calId) {
 
         checkContextNull(context);
 
@@ -622,8 +628,9 @@ public class CalendarManager {
         Uri uri = CalendarContract.Events.CONTENT_URI;
         Uri uri2 = CalendarContract.Reminders.CONTENT_URI;
 
-        String selection = "(" + CalendarContract.Events.CALENDAR_ID + " = ?)";
-        String[] selectionArgs = new String[]{String.valueOf(calId)};
+        String selection = "((" + CalendarContract.Events.CALENDAR_ID + " = ?) AND ("
+                + CalendarContract.Calendars.CALENDAR_DISPLAY_NAME + " = ?))";
+        String[] selectionArgs = new String[]{String.valueOf(calId), CALENDAR_DISPLAY_NAME};
 
         Cursor cursor;
 
@@ -769,7 +776,13 @@ public class CalendarManager {
     /**
      * 组装日历事件
      */
-    private static void setupEvent(CalendarEvent calendarEvent, ContentValues event) {
+    private static ContentValues setupEvent(CalendarEvent calendarEvent, Context context) {
+        // 开始组装事件数据
+        ContentValues event = new ContentValues();
+        // 获取日历账户 ID，也就是要将事件插入到的账户
+        long accountId = obtainCalendarAccountId(context);
+        // 事件要插入到的日历账户
+        event.put(CalendarContract.Events.CALENDAR_ID, accountId);
         // 事件开始时间
         event.put(CalendarContract.Events.DTSTART, calendarEvent.getStart());
         // 事件结束时间
@@ -786,8 +799,8 @@ public class CalendarManager {
         event.put(CalendarContract.Events.ACCESS_LEVEL, CalendarContract.Events.ACCESS_DEFAULT);
         // 事件的状态
         event.put(CalendarContract.Events.STATUS, 0);
-        // 设置事件提醒警报可用
-        event.put(CalendarContract.Events.HAS_ALARM, 1);
+        // 设置事件提醒闹钟
+        event.put(CalendarContract.Events.HAS_ALARM, 0);
         // 设置事件忙
         event.put(CalendarContract.Events.AVAILABILITY, CalendarContract.Events.AVAILABILITY_BUSY);
         if (null != calendarEvent.getRRule()) {
@@ -800,6 +813,8 @@ public class CalendarManager {
                             calendarEvent.getEnd())
             );
         }
+
+        return event;
     }
 
 
@@ -893,7 +908,7 @@ public class CalendarManager {
     public static void startCalendarForIntentToInsert(Context context, long beginTime, long endTime,
                                                       String title, String des, String location,
                                                       boolean isAllDay) {
-        checkCalendarAccount(context);
+        checkCalendarAccount(context, CALENDAR_DISPLAY_NAME);
 
         // FIXME: VIVO 手机无法打开界面，找不到对应的 Activity  com.bbk.calendar
         Intent intent = new Intent(Intent.ACTION_INSERT)
@@ -918,7 +933,7 @@ public class CalendarManager {
      * @param eventId 要编辑的事件ID
      */
     public static void startCalendarForIntentToEdit(Context context, long eventId) {
-        checkCalendarAccount(context);
+        checkCalendarAccount(context, CALENDAR_DISPLAY_NAME);
 
         Uri uri = ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, eventId);
         Intent intent = new Intent(Intent.ACTION_EDIT).setData(uri);
@@ -935,7 +950,7 @@ public class CalendarManager {
      * @param eventId 要查看的事件ID
      */
     public static void startCalendarForIntentToView(Context context, long eventId) {
-        checkCalendarAccount(context);
+        checkCalendarAccount(context, CALENDAR_DISPLAY_NAME);
 
         Uri uri = ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, eventId);
         Intent intent = new Intent(Intent.ACTION_VIEW).setData(uri);
