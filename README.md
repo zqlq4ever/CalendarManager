@@ -1,5 +1,28 @@
 # CalendarManager
 
+# 接入方式
+
+##  第一步 :
+
+```groovy
+allprojects {
+		repositories {
+			...
+			maven { url 'https://jitpack.io' }
+		}
+	}
+```
+
+##	第二步
+
+```groovy
+dependencies {
+	implementation 'com.github.zqlq4ever:CalendarManager:version'
+}
+```
+
+[![](https://jitpack.io/v/zqlq4ever/CalendarManager.svg)](https://jitpack.io/#zqlq4ever/CalendarManager)
+
 > Fork 自`kylechandev/CalendarProviderManager`的项目
 
 # 原有信息
