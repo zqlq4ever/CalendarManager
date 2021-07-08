@@ -21,9 +21,31 @@ dependencies {
 }
 ```
 
-
-
 [![](https://jitpack.io/v/zqlq4ever/CalendarManager.svg)](https://jitpack.io/#zqlq4ever/CalendarManager)
+
+##  使用说明
+
+
+```java
+//  日历操作都应放在子线程
+// 添加日历事件
+CalendarManager.addCalendarEvent(this, calendarEvent);
+
+// 删除日历事件
+CalendarManager.deleteCalendarEvent(this, eventDeleteId);
+
+// 查询日历事件
+CalendarManager.searchAccountEvent(this, accountId);
+
+//  可以动态注册广播，接收日历提醒事件
+IntentFilter filter = new IntentFilter();
+filter.addAction(CalendarContract.ACTION_EVENT_REMINDER);
+// 隐示 intent 所以要加这一行
+filter.addDataScheme("content");
+mReceiver = new ReminderReceiver();
+registerReceiver(mReceiver, filter);
+```
+
 
 > Fork 自`kylechandev/CalendarProviderManager`的项目
 

@@ -175,9 +175,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.bt_search:
                 if (CalendarManager.isEventAlreadyExist(
                         this,
-                        1552986006309L,
-                        155298606609L,
-                        "马上吃饭")) {
+                        System.currentTimeMillis(),
+                        System.currentTimeMillis() + 60000,
+                        "有一个快递要去拿")) {
                     toast("存在");
                 } else {
                     toast("不存在");
