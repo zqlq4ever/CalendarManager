@@ -4,7 +4,7 @@
 
 ##  第一步 :
 
-```groovy
+```apl
 allprojects {
 		repositories {
 			...
@@ -15,11 +15,13 @@ allprojects {
 
 ##	第二步
 
-```groovy
+```apl
 dependencies {
 	implementation 'com.github.zqlq4ever:CalendarManager:version'
 }
 ```
+
+
 
 [![](https://jitpack.io/v/zqlq4ever/CalendarManager.svg)](https://jitpack.io/#zqlq4ever/CalendarManager)
 
